@@ -119,6 +119,8 @@ ARayCastLidar::FDetection ARayCastLidar::ComputeDetection(const FHitResult& HitI
 
   Detection.intensity = IntRec;
 
+  Detection.livox_timestamp = HitInfo.Time;
+
   return Detection;
 }
 
