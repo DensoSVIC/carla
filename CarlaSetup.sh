@@ -51,13 +51,13 @@ then
     sudo apt-get install retry
 fi
 retry --until=success --times=12 --delay=300 -- sudo apt-get update
+# removing this for docker build as expect this to be mounted in container libvulkan1 \
 retry --until=success --times=12 --delay=300 -- sudo apt-get -y install \
     build-essential \
     g++-12 \
     gcc-12 \
     make \
     ninja-build \
-    libvulkan1 \
     python3 \
     python3-dev \
     python3-pip \
@@ -81,7 +81,7 @@ echo "Python Packages Installed..."
 
 echo "Clonning CARLA Content asynchronously... (see the progres in ContentClone.log)"
 mkdir -p Unreal/CarlaUnreal/Content
-git -C Unreal/CarlaUnreal/Content clone -b ue5-dev https://bitbucket.org/carla-simulator/carla-content.git Carla &> ContentClone.log&
+git -C Unreal/CarlaUnreal/Content clone -b 0.10.0 https://bitbucket.org/carla-simulator/carla-content.git Carla &> ContentClone.log&
 
 CMAKE_MINIMUM_VERSION=3.28.0
 if satisfies_minimum_version $CMAKE_MINIMUM_VERSION; then
@@ -114,9 +114,9 @@ else
     pushd ..
     if [ -z "$GIT_LOCAL_CREDENTIALS" ]
     then
-        git clone -b ue5-dev-carla https://github.com/CarlaUnreal/UnrealEngine.git UnrealEngine5_carla
+        git clone -b 0.10.0 https://github.com/CarlaUnreal/UnrealEngine.git UnrealEngine5_carla
     else
-        git clone -b ue5-dev-carla https://$GIT_LOCAL_USER:$GIT_LOCAL_TOKEN@github.com/CarlaUnreal/UnrealEngine.git UnrealEngine5_carla
+        git clone -b 0.10.0 https://$GIT_LOCAL_USER:$GIT_LOCAL_TOKEN@github.com/CarlaUnreal/UnrealEngine.git UnrealEngine5_carla
     fi
     pushd UnrealEngine5_carla
     echo -e '\n#CARLA UnrealEngine5\nexport CARLA_UNREAL_ENGINE_PATH='$PWD >> ~/.bashrc
@@ -129,7 +129,8 @@ pushd ..
 pushd $CARLA_UNREAL_ENGINE_PATH
 echo Checking if UnreaEngine5 is in the last commit...
 git fetch
-if [[ $(git status) =~ "up to date" ]]; then
+# this check should be "up to date" for dev
+if [[ $(git status) =~ "HEAD detached at 0.10.0" ]]; then
     echo UnreaEngine5 is already in the last commit - OK
 else
     echo UnreaEngine5 is NOT in the last commit - FAIL
