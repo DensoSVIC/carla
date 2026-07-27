@@ -13,6 +13,12 @@ struct CARLA_API FLidarDescription
 {
   GENERATED_BODY()
 
+  UPROPERTY(EditAnywhere)
+  FString LidarType = TEXT("default"); //lidar type(default,livox,Surround,Solid_state)
+ 
+  UPROPERTY(EditAnywhere)
+  FString NAME = TEXT("default"); //lidar name(modify int to string)
+
   /// Number of lasers.
   UPROPERTY(EditAnywhere)
   uint32 Channels = 32u;
@@ -69,4 +75,25 @@ struct CARLA_API FLidarDescription
 
   UPROPERTY(EditAnywhere)
   float NoiseStdDev = 0.0f;
+  //enable lidar ghost characters
+  UPROPERTY(EditAnywhere)
+  bool EnableGhost = false;
+
+  std::vector<float> vfov;
+
+  std::vector<float> hfov;
+
+
+  std::vector<std::vector<float>> sub_vfov;
+
+  std::vector<std::vector<float>> sub_hfov;  
+
+  int pointnums=0;
+
+  float Decay = 0.0f; //Point cloud density control parameter in liovx
+  int LivoxSize = 0;
+  std::vector<std::vector<float>> livox_csv_info; //save the csv data
+  int LivoxCount = 0; //record the livox_csv_info index count
+  float LivoxTimestamp = 0.0f;
+  int Livox_loop_count = 0;
 };
