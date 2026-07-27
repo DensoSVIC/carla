@@ -142,6 +142,14 @@ public:
   UFUNCTION(BlueprintCallable)
   void SetSeed(int32 InSeed);
 
+  float GetRainRate(){
+    if (Episode != nullptr) 
+    {
+      return Episode->GetWeather()->GetCurrentWeather().Precipitation;
+    }
+    return 0.0f;
+  }
+
   const UCarlaEpisode &GetEpisode() const
   {
     check(Episode != nullptr);
