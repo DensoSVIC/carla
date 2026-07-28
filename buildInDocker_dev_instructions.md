@@ -7,7 +7,6 @@
 - namely the carla folder and the unreal engine fork that gets checked out should be mounted so have to reubild less 
 ```
 docker run --name carla_10_build \
-  --privileged \
   --net=host \
   --gpus all \
   --env=DISPLAY=$DISPLAY \
@@ -25,16 +24,16 @@ docker run --name carla_10_build \
 - TODO remove this before putting on github
 - do not need net host for build but do for running
 - if use net host add orion to /etc/hosts
+- note UnrealEngine5_carla gets checkout by the ./CarlaSetup.sh script in carla so make sure it is mounted on same level as carla dir
 
 ## Prerequisite installs
 
-- TODO check libfoonathan-memory-dev may not be necesacry with fixes to other build scripts
-- `apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo apt-utils dialog cmake tzdata libnss3 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb-dev libxcomposite-dev libxcursor-dev libxdamage1 libxi6 libgbm-dev libpangocairo-1.0-0 libxss1 libasound2 libxkbcommon0 libfoonathan-memory-dev`
+- `apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo apt-utils dialog cmake tzdata libnss3 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb-dev libxcomposite-dev libxcursor-dev libxdamage1 libxi6 libgbm-dev libpangocairo-1.0-0 libxss1 libasound2 libxkbcommon0`
 
 ## Gitlab user name / PAT
 - need to link a github account and have permissions to epic uneral engine organization
-- need to make a token with repo acess which will go in password field
-- TODO doing this still prompted in the script
+- need to make a personal acess token (classic) with repo acess which will go in password field
+- TODO doing this still prompted in the script but basic running script will be prompted for these
 - `export GIT_LOCAL_CREDENTIALS=USER_NAME@PERSONAL_ACCESS_TOKEN`
 
 ## Build
@@ -46,6 +45,13 @@ docker run --name carla_10_build \
 
 ## Run
 
-- TODO check on rebuild if this is fixed
-- `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./carla/Unreal/CarlaUnreal/Plugins/Carla/Binaries/Linux/`
+### Server
+
 - `apt-get install freeglut3-dev mesa-utils`
+- `./carla/Build/Package/Carla-0.10.0-Linux-Shipping/Linux/CarlaUnreal.sh`
+
+### Client Python
+
+- `python3 python3-pip`
+- `python3 -m pip install ./Build/Package/Carla-0.10.0-Linux-Shipping/PythonAPI/carla/dist/carla-0.10.0-cp310-cp310-linux_x86_64.whl`
+- `python3 yourPythonScriptWhichIncludesCarla.py`
