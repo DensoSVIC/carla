@@ -18,12 +18,10 @@ docker run --name carla_10_build \
   -v /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d \
   -v ./carla:/root/carla \
   -v ./UnrealEngine5_carla:/root/UnrealEngine5_carla \
-  --rm \
   -it ubuntu:22.04
 ```
-- TODO remove this before putting on github
+- TODO remove this before putting on github: if use net host add orion to /etc/hosts
 - do not need net host for build but do for running
-- if use net host add orion to /etc/hosts
 - note UnrealEngine5_carla gets checkout by the ./CarlaSetup.sh script in carla so make sure it is mounted on same level as carla dir
 
 ## Prerequisite installs
@@ -44,6 +42,21 @@ docker run --name carla_10_build \
 - `cmake --build Build --target package`
 
 ## Run
+
+### Add New User
+
+- Unreal without modification won't start as root
+- I added in above run command just my group/user from to inside container then:
+```
+docker exec \
+  --env=DISPLAY=$DISPLAY \
+  --user=$(id -u):$(id -g) \
+  --tty \
+  --env=NVIDIA_VISIBLE_DEVICES=all \
+  --env=NVIDIA_DRIVER_CAPABILITIES=all \
+  -it carla_10_build /bin/bash
+```
+- + chmod the mounts
 
 ### Server
 
