@@ -52,10 +52,10 @@ def lidar_callback(point_cloud, point_list):
     """Prepares a point cloud with intensity
     colors ready to be consumed by Open3D"""
     data = np.copy(np.frombuffer(point_cloud.raw_data, dtype=np.dtype('f4')))
-    data = np.reshape(data, (int(data.shape[0] / 4), 4))
+    data = np.reshape(data, (int(data.shape[0] / 5), 5))
 
     # Isolate the intensity and compute a color for it
-    intensity = data[:, -1]
+    intensity = data[:, -2]
     intensity_col = 1.0 - np.log(intensity) / np.log(np.exp(-0.004 * 100))
     int_color = np.c_[
         np.interp(intensity_col, VID_RANGE, VIRIDIS[:, 0]),
@@ -63,7 +63,7 @@ def lidar_callback(point_cloud, point_list):
         np.interp(intensity_col, VID_RANGE, VIRIDIS[:, 2])]
 
     # Isolate the 3D data
-    points = data[:, :-1]
+    points = data[:, :-2]
 
     # We're negating the y to correclty visualize a world that matches
     # what we see in Unreal since Open3D uses a right-handed coordinate system
@@ -118,6 +118,7 @@ def generate_lidar_bp(arg, world, blueprint_library, delta):
         else:
             lidar_bp.set_attribute('noise_stddev', '0.2')
 
+    lidar_bp.set_attribute("lidar_type", "original")
     lidar_bp.set_attribute('upper_fov', str(arg.upper_fov))
     lidar_bp.set_attribute('lower_fov', str(arg.lower_fov))
     lidar_bp.set_attribute('channels', str(arg.channels))

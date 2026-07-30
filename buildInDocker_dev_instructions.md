@@ -41,6 +41,31 @@ docker run --name carla_10_build \
 - `./CarlaSetup.sh`
 - `cmake --build Build --target package`
 
+### Speed Up Build
+
+- above is slow mainly due to taring the binary content dirs
+- if just want to build and include everything but do not need a tar.gz:
+- in Unreal/CMakeLists.txt comment out the compression:
+```
+-    COMMAND ${CMAKE_COMMAND} -E echo "********** COMPRESSING PACKAGE STARTED **********"
+-    COMMAND ${CMAKE_COMMAND}
+-      -DCARLA_PACKAGE_PATH=${CARLA_PACKAGE_PATH}
+-      -DCARLA_PACKAGE_ARCHIVE_PATH=${CARLA_PACKAGE_ARCHIVE_PATH}
+-      -DCARLA_CURRENT_PACKAGE_PATH=${CARLA_CURRENT_PACKAGE_PATH}
+-      -P${CMAKE_CURRENT_SOURCE_DIR}/Package/Compress.cmake
+-    COMMAND ${CMAKE_COMMAND} -E echo "********** COMPRESSING PACKAGE COMPLETED **********"
++    # This part is slow
++    # COMMAND ${CMAKE_COMMAND} -E echo "********** COMPRESSING PACKAGE STARTED **********"
++    # COMMAND ${CMAKE_COMMAND}
++    #   -DCARLA_PACKAGE_PATH=${CARLA_PACKAGE_PATH}
++    #   -DCARLA_PACKAGE_ARCHIVE_PATH=${CARLA_PACKAGE_ARCHIVE_PATH}
++    #   -DCARLA_CURRENT_PACKAGE_PATH=${CARLA_CURRENT_PACKAGE_PATH}
++    #   -P${CMAKE_CURRENT_SOURCE_DIR}/Package/Compress.cmake
++    # COMMAND ${CMAKE_COMMAND} -E echo "********** COMPRESSING PACKAGE COMPLETED **********"
+```
+
+
+
 ## Run
 
 ### Add New User

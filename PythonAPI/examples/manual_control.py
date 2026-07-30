@@ -1094,7 +1094,7 @@ class RadarSensor(object):
 
 
 class CameraManager(object):
-    def __init__(self, parent_actor, hud, gamma_correction):
+    def __init__(self, parent_actor, hud, gamma_correction, save_lidar=False):
         self.sensor = None
         self.surface = None
         self._parent = parent_actor
@@ -1104,6 +1104,7 @@ class CameraManager(object):
         bound_y = 0.5 + self._parent.bounding_box.extent.y
         bound_z = 0.5 + self._parent.bounding_box.extent.z
         Attachment = carla.AttachmentType
+        self.save_lidar = save_lidar
 
         if not self._parent.type_id.startswith("walker.pedestrian"):
             self._camera_transforms = [
@@ -1123,21 +1124,28 @@ class CameraManager(object):
         self.transform_index = 1
         self.sensors = [
             ['sensor.camera.rgb', cc.Raw, 'Camera RGB', {}],
-            ['sensor.camera.depth', cc.Raw, 'Camera Depth (Raw)', {}],
-            ['sensor.camera.depth', cc.Depth, 'Camera Depth (Gray Scale)', {}],
-            ['sensor.camera.depth', cc.LogarithmicDepth, 'Camera Depth (Logarithmic Gray Scale)', {}],
-            ['sensor.camera.semantic_segmentation', cc.Raw, 'Camera Semantic Segmentation (Raw)', {}],
-            ['sensor.camera.semantic_segmentation', cc.CityScapesPalette, 'Camera Semantic Segmentation (CityScapes Palette)', {}],
-            ['sensor.camera.instance_segmentation', cc.Raw, 'Camera Instance Segmentation (Raw)', {}],
-            ['sensor.lidar.ray_cast', None, 'Lidar (Ray-Cast)', {'range': '50'}],
-            ['sensor.lidar.ray_cast_semantic', None, 'Semantic Lidar (Ray-Cast)', {'range': '50'}],
-            ['sensor.camera.rgb', cc.Raw, 'Camera RGB Distorted',
-                {'lens_circle_multiplier': '3.0',
-                'lens_circle_falloff': '3.0',
-                'chromatic_aberration_intensity': '0.5',
-                'chromatic_aberration_offset': '0'}],
-            ['sensor.camera.optical_flow', cc.Raw, 'Optical Flow', {}],
-            ['sensor.camera.normals', cc.Raw, 'Camera Normals', {}],
+            #['sensor.camera.depth', cc.Raw, 'Camera Depth (Raw)', {}],
+            #['sensor.camera.depth', cc.Depth, 'Camera Depth (Gray Scale)', {}],
+            #['sensor.camera.depth', cc.LogarithmicDepth, 'Camera Depth (Logarithmic Gray Scale)', {}],
+            #['sensor.camera.semantic_segmentation', cc.Raw, 'Camera Semantic Segmentation (Raw)', {}],
+            #['sensor.camera.semantic_segmentation', cc.CityScapesPalette, 'Camera Semantic Segmentation (CityScapes Palette)', {}],
+            #['sensor.camera.instance_segmentation', cc.Raw, 'Camera Instance Segmentation (Raw)', {}],
+            ['sensor.lidar.ray_cast', None, 'Lidar (Ray-Cast Original)', {'range': '50', "name": "original"}],
+            ['sensor.lidar.ray_cast', None, 'Lidar (Ray-Cast Modified Intensity)', {'range': '50'}],
+            # Note this one might need more transform to work looks ok in open3d but not here
+            #['sensor.lidar.ray_cast', None, 'Lidar (Ray-Cast Risley_prism)', {'range': '50', "lidar_type": "Risley_prism", "name":"horizon"}],
+            # Note this one might need more transform to work looks ok in open3d but not here
+            #['sensor.lidar.ray_cast', None, 'Lidar (Ray-Cast Surround)', {'range': '50', "lidar_type": "Surround", "name":"pandar64"}],
+            ['sensor.lidar.ray_cast', None, 'Lidar (Ray-Cast Solid_state)', {'range': '50', "lidar_type": "Solid_state", "name":"rs_m1"}],
+            #['sensor.lidar.ray_cast_semantic', None, 'Semantic Lidar (Ray-Cast)', {'range': '50'}],
+            #['sensor.lidar.ray_cast_semantic', None, 'Semantic Lidar (Ray-Cast)', {'range': '50'}],
+            #['sensor.camera.rgb', cc.Raw, 'Camera RGB Distorted',
+            #    {'lens_circle_multiplier': '3.0',
+            #    'lens_circle_falloff': '3.0',
+            #    'chromatic_aberration_intensity': '0.5',
+            #    'chromatic_aberration_offset': '0'}],
+            #['sensor.camera.optical_flow', cc.Raw, 'Optical Flow', {}],
+            #['sensor.camera.normals', cc.Raw, 'Camera Normals', {}],
         ]
         world = self._parent.get_world()
         bp_library = world.get_blueprint_library()
@@ -1205,6 +1213,13 @@ class CameraManager(object):
         if self.sensors[self.index][0] == 'sensor.lidar.ray_cast':
             points = np.frombuffer(image.raw_data, dtype=np.dtype('f4'))
             points = np.reshape(points, (int(points.shape[0] / 5), 5))
+
+            intensities = np.array(points[:, 3])
+            intensities = np.round(intensities * 255).astype(np.uint8)
+            if self.save_lidar:
+                with open('lidar_data.txt', 'a') as f:
+                    np.savetxt(f, intensities, delimiter=',')
+
             lidar_data = np.array(points[:, :2])
             lidar_data *= min(self.hud.dim) / (2.0 * self.lidar_range)
             lidar_data += (0.5 * self.hud.dim[0], 0.5 * self.hud.dim[1])
@@ -1213,7 +1228,11 @@ class CameraManager(object):
             lidar_data = np.reshape(lidar_data, (-1, 2))
             lidar_img_size = (self.hud.dim[0], self.hud.dim[1], 3)
             lidar_img = np.zeros((lidar_img_size), dtype=np.uint8)
-            lidar_img[tuple(lidar_data.T)] = (255, 255, 255)
+
+            rgb_colours = np.stack([intensities]*3, axis=-1)
+
+            lidar_img[tuple(lidar_data.T)] = rgb_colours
+
             self.surface = pygame.surfarray.make_surface(lidar_img)
         elif self.sensors[self.index][0] == 'sensor.lidar.ray_cast_semantic':
             points = np.frombuffer(image.raw_data, dtype=np.dtype('f4'))
