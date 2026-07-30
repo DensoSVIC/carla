@@ -245,27 +245,30 @@ ARayCastLidar::FDetection ARayCastLidar::ComputeDetection(const FHitResult& HitI
   }
 
   void ARayCastLidar::ComputeAndSaveDetections(const FTransform &SensorTransform)
-{
-  ComputeAndSaveDetectionsAdvance(SensorTransform);
-  // for (auto idxChannel = 0u; idxChannel < Description.Channels; ++idxChannel)
-  // {
-  //   PointsPerChannel[idxChannel] = RecordedHits[idxChannel].size();
-  // }
+  {
+    if (Description.NAME != "original") {
+      ComputeAndSaveDetectionsAdvance(SensorTransform);
+    } else {
+      for (auto idxChannel = 0u; idxChannel < Description.Channels; ++idxChannel)
+      {
+        PointsPerChannel[idxChannel] = RecordedHits[idxChannel].size();
+      }
 
-  // LidarData.ResetMemory(PointsPerChannel);
-  // for (auto idxChannel = 0u; idxChannel < Description.Channels; ++idxChannel)
-  // {
-  //   for (auto &hit : RecordedHits[idxChannel])
-  //   {
-  //     FDetection Detection = ComputeDetection(hit, SensorTransform);
-  //     if (PostprocessDetection(Detection))
-  //       LidarData.WritePointSync(Detection);
-  //     else
-  //       PointsPerChannel[idxChannel]--;
-  //   }
-  // }
-  // LidarData.WriteChannelCount(PointsPerChannel);
-}
+      LidarData.ResetMemory(PointsPerChannel);
+      for (auto idxChannel = 0u; idxChannel < Description.Channels; ++idxChannel)
+      {
+        for (auto &hit : RecordedHits[idxChannel])
+        {
+          FDetection Detection = ComputeDetection(hit, SensorTransform);
+          if (PostprocessDetection(Detection))
+            LidarData.WritePointSync(Detection);
+          else
+            PointsPerChannel[idxChannel]--;
+        }
+      }
+      LidarData.WriteChannelCount(PointsPerChannel);
+    }
+  }
 
 void ARayCastLidar::SampleBeamParticles(std::vector<ParticleNoise> &beam_particles)
 {
@@ -550,7 +553,12 @@ void ARayCastLidar::ComputeAndSaveDetectionsAdvance(const FTransform &SensorTran
       // SampleBeamParticles(beam_particles);
       // particles_count += beam_particles.size();
       // std::cout << "start Compute Detection, sampled particles " << beam_particles.size() << std::endl;
-      FDetection Detection = ComputeDetectionAdvance(hit, SensorTransform, idxChannel, idxHorizon++);
+      FDetection Detection;
+      if (Description.NAME != "original") {
+        Detection = ComputeDetectionAdvance(hit, SensorTransform, idxChannel, idxHorizon++);
+      } else {
+        Detection = ComputeDetection(hit, SensorTransform);
+      }
       if (PostprocessDetection(Detection))
         LidarData.WritePointSync(Detection);
       else
