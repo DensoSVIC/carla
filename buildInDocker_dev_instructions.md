@@ -36,6 +36,7 @@ docker run --name carla_10_build \
 
 ## Build
 
+- `export LANG=C.UTF-8`
 - `export UE_ROOT=/root/UnrealEngine5_carla/`
 - `cd /root/carla`
 - `./CarlaSetup.sh`
