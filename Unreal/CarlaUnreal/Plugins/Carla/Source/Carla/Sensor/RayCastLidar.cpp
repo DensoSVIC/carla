@@ -567,7 +567,7 @@ void ARayCastLidar::ComputeAndSaveDetectionsAdvance(const FTransform &SensorTran
   }
   LidarData.WriteChannelCount(PointsPerChannel);
   // LidarLogging(debug_particle_count);
-  std::cout << "LiDAR detect particle " << debug_particle_count << std::endl;
+  //std::cout << "LiDAR detect particle " << debug_particle_count << std::endl;
 }
 
 // LIDARTODO should the time stamp be put in here?
