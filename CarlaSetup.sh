@@ -7,6 +7,10 @@ skip_prerequisites=0
 launch=0
 python_root=
 
+# tested hashes for custom lidar version remove these to target ue5-dev
+CARLA_CONTENT_HASH=639d6eff5aae672da4219e9ace4a2ee891367548
+CARLA_UNREAL_HASH=2ac0528831e08e80784df2759db9a2c592d3bd4d
+
 workspace_path="$(dirname $(realpath "${BASH_SOURCE[-1]}"))"
 echo "workspace_path=$workspace_path"
 
@@ -85,12 +89,21 @@ if [ -d $workspace_path/Unreal/CarlaUnreal/Content ]; then
 else
     echo "Could not find CARLA content. Downloading..."
     mkdir -p $workspace_path/Unreal/CarlaUnreal/Content
-    git \
-        -C $workspace_path/Unreal/CarlaUnreal/Content \
-        clone \
-        -b ue5-dev \
-        https://bitbucket.org/carla-simulator/carla-content.git \
-        Carla
+    if [[ -n "${CARLA_CONTENT_HASH}" ]]; then
+        mkdir -p $workspace_path/Unreal/CarlaUnreal/Content/Carla
+        pushd $workspace_path/Unreal/CarlaUnreal/Content/Carla
+        git remote add origin https://bitbucket.org/carla-simulator/carla-content.git 
+        git fetch --depth 1 origin $CARLA_CONTENT_HASH
+        git checkout FETCH_HEAD
+        popd
+    else
+        git \
+            -C $workspace_path/Unreal/CarlaUnreal/Content \
+            clone \
+            -b ue5-dev \
+            https://bitbucket.org/carla-simulator/carla-content.git \
+            Carla
+    fi
 fi
 
 # -- DOWNLOAD + BUILD UNREAL ENGINE --
@@ -112,6 +125,9 @@ else
     fi
     git clone -b ue5-dev-carla $UE5_URL UnrealEngine5_carla
     pushd UnrealEngine5_carla
+    if [[ -n "${CARLA_UNREAL_HASH}" ]]; then
+        git checkout 2ac0528831e08e80784df2759db9a2c592d3bd4d
+    fi
     echo -e '\n#CARLA UnrealEngine5\nexport CARLA_UNREAL_ENGINE_PATH='$PWD >> ~/.bashrc
     export CARLA_UNREAL_ENGINE_PATH=$PWD
     echo "Running Unreal Engine pre-build steps..."
