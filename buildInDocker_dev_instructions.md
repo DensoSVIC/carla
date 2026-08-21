@@ -13,9 +13,10 @@ docker run --name carla_10_build \
   --env=NVIDIA_VISIBLE_DEVICES=all \
   --env=NVIDIA_DRIVER_CAPABILITIES=all \
   -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-  -v /usr/lib64/libvulkan.so.1:/usr/lib64/libvulkan.so.1 \
-  -v /usr/lib64/libnvidia-gpucomp.so.595.58.03:/usr/lib64/libnvidia-gpucomp.so.595.58.03 \
+  -v /usr/lib/x86_64-linux-gnu/libvulkan.so.1:/usr/lib/x86_64-linux-gnu/libvulkan.so.1 \
+  -v /usr/lib/x86_64-linux-gnu/libnvidia-gpucomp.so.595.84:/usr/lib/x86_64-linux-gnu/libnvidia-gpucomp.so.595.84 \
   -v /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d \
+  -v ~/.Xauthority:/tmp/.Xauthority \
   -v ./carla:/root/carla \
   -v ./UnrealEngine5_carla:/root/UnrealEngine5_carla \
   -it ubuntu:22.04
@@ -26,18 +27,20 @@ docker run --name carla_10_build \
 
 ## Prerequisite installs
 
-- `apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo apt-utils dialog cmake tzdata libnss3 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb-dev libxcomposite-dev libxcursor-dev libxdamage1 libxi6 libgbm-dev libpangocairo-1.0-0 libxss1 libasound2 libxkbcommon0`
+- `apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo apt-utils dialog tzdata libnss3 libxrandr2 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb-dev libxcomposite-dev libxcursor-dev libxdamage1 libxi6 libgbm-dev libpangocairo-1.0-0 libxss1 libasound2 libxkbcommon0 x11-apps`
+
+- note added x11-apps to this as this routinely has been an issue so make sure xeyes works before attempting to launch carla via x11
 
 ## Gitlab user name / PAT
 - need to link a github account and have permissions to epic uneral engine organization
 - need to make a personal acess token (classic) with repo acess which will go in password field
-- TODO doing this still prompted in the script but basic running script will be prompted for these
 - `export GIT_LOCAL_CREDENTIALS=USER_NAME@PERSONAL_ACCESS_TOKEN`
 
 ## Build
 
 - `export LANG=C.UTF-8`
 - `export UE_ROOT=/root/UnrealEngine5_carla/`
+- `export CARLA_UNREAL_ENGINE_PATH=/root/UnrealEngine5_carla/`
 - `cd /root/carla`
 - `./CarlaSetup.sh`
 - `cmake --build Build --target package`
@@ -64,8 +67,6 @@ docker run --name carla_10_build \
 +    #   -P${CMAKE_CURRENT_SOURCE_DIR}/Package/Compress.cmake
 +    # COMMAND ${CMAKE_COMMAND} -E echo "********** COMPRESSING PACKAGE COMPLETED **********"
 ```
-
-
 
 ## Run
 

@@ -141,6 +141,8 @@ fi
 
 # -- BUILD CARLA --
 echo "Configuring the CARLA CMake project..."
+# the export in installPrereq didn't have an effect here
+export PATH=/opt/cmake-3.28.3-linux-x86_64/bin:$PATH
 cmake -G Ninja -S . -B Build \
     --toolchain=$PWD/CMake/Toolchain.cmake \
     -DLAUNCH_ARGS="-prefernvidia" \

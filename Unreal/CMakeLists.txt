@@ -471,6 +471,9 @@ function (
       -P${CMAKE_CURRENT_SOURCE_DIR}/Package/RemoveUnrealPackageExtraFiles.cmake
     COMMAND ${CMAKE_COMMAND} -E echo "********** PACKAGE REMOVING UNREAL PACKAGE EXTRA FILES COMPLETED **********"
 
+    COMMAND ${CMAKE_COMMAND} -E echo "********** PACKAGE REMOVING CHMOD FROM UNREAL LAUNCH **********"
+    COMMAND sed -i "/chmod/d" ${CARLA_CURRENT_PACKAGE_PATH}/Linux/CarlaUnreal.sh
+
     COMMAND ${CMAKE_COMMAND} -E echo "********** PACKAGE COPYING CARLA ADDITIONAL FILES STARTED **********"
     COMMAND ${CMAKE_COMMAND}
       -DCARLA_BUILD_PATH=${CARLA_BUILD_PATH}
