@@ -1,0 +1,46 @@
+{
+    "name": "libcarla",
+    "version": "",
+    "architecture": {
+        "host": "aarch64",
+        "target": "aarch64",
+        "platform": "linux/arm64"
+    },
+
+    "runtimeImage": {
+        "name": "ubuntu",
+        "version": "24.04",
+        "type": "docker"
+    },
+
+    "devImage": {
+        "name": "ubuntu",
+        "version": "24.04",
+        "type": "docker"
+    },
+
+    "build": {
+        "workdir": "/app",
+        "env": [
+            {
+                "LOG_LEVEL": "info"
+            }
+        ]
+    },
+
+    "packages": {
+        "apt": [],
+        "pip": [],
+        "npm": []
+    },
+
+    "registry": {
+        "artifacts": "https://globaldenso.jfrog.io/artifactory/test-generic-local/",
+        "docker": "https://globaldenso.jfrog.io/artifactory/test-docker-local/"
+    },
+
+    "outputs": {
+        "devImage": true,
+        "runtimeImage": true
+    }
+}

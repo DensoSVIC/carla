@@ -1,0 +1,3 @@
+[submodule "denso-dev-env"]
+	path = denso-dev-env
+	url = git@github.com:densoGSR/de-dev-env.git

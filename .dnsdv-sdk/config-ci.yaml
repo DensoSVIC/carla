@@ -1,0 +1,19 @@
+remote_path: "{{ ansible_env.HOME }}/carla"
+
+local_config:
+  hosts:
+
+  - name: thor
+    architecture: arm64
+    distro: ubuntu
+    hostname: 192.168.90.105
+    user: thor
+
+orchestrator: docker
+containers:
+- name: libcarla
+  architecture: arm64
+  remote_path: "{{ ansible_env.HOME }}/carla"
+  build_host: thor
+  manual_build:
+  - dagger call upload-artifacts
