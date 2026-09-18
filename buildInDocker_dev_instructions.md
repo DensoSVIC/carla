@@ -14,7 +14,7 @@ docker run --name carla_10_build \
   --env=NVIDIA_DRIVER_CAPABILITIES=all \
   -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
   -v /usr/lib/x86_64-linux-gnu/libvulkan.so.1:/usr/lib/x86_64-linux-gnu/libvulkan.so.1 \
-  -v /usr/lib/x86_64-linux-gnu/libnvidia-gpucomp.so.595.84:/usr/lib/x86_64-linux-gnu/libnvidia-gpucomp.so.595.84 \
+  -v /usr/lib/x86_64-linux-gnu/libnvidia-gpucomp.so.595.91.07:/usr/lib/x86_64-linux-gnu/libnvidia-gpucomp.so.595.91.07 \
   -v /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d \
   -v ~/.Xauthority:/tmp/.Xauthority \
   -v ./carla:/root/carla \
