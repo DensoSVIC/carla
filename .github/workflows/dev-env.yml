@@ -1,0 +1,103 @@
+name: CI
+on: push
+# on:
+#   push:
+#     branches:
+#     - main
+#     - develop
+#   pull_request:
+#     branches:
+#     - main
+#     - develop
+
+jobs:
+  checkout:
+    runs-on: [sdv-local]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: "${{ github.sha }}/carla"
+          clean: false
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "DensoSVIC/dnsdv-sdk"
+          path: "${{ github.sha }}/dnsdv-sdk"
+          ref: develop
+          submodules: true
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+
+  setup:
+    runs-on: [sdv-local]
+    needs: [checkout]
+    steps:
+      - name: Deployment Name
+        id: vars
+        working-directory: "${{ github.sha }}/carla"
+        run: echo "deployment=sfd-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v7
+
+      - name: Setup Secrets
+        env:
+          THOR_PRIVATE_KEY: ${{ secrets.THOR_PRIVATE_KEY }}
+        run: |
+          echo "$THOR_PRIVATE_KEY" > ${{ runner.temp }}/thor-ci
+
+      - name: Setup DNSDV-SDK
+        working-directory: "${{ github.sha }}"
+        run: |
+            if [ ! -d .venv ] ; then python3 -m venv .venv; fi
+            export PATH=`pwd`/.venv/bin:$PATH
+            echo PATH=`pwd`/.venv/bin:$PATH >> $GITHUB_ENV
+            cd ./carla
+            ../dnsdv-sdk/dnsdv-sdk.sh init --deployment=${{ steps.vars.outputs.deployment }}
+            mv .dnsdv-sdk/config-ci.yaml .dnsdv-sdk/${{ steps.vars.outputs.deployment }}/config.yaml
+            ../dnsdv-sdk/dnsdv-sdk.sh key set ${{ runner.temp }}/thor-ci --deployment=${{ steps.vars.outputs.deployment }}
+            ../dnsdv-sdk/dnsdv-sdk.sh provision --deployment=${{ steps.vars.outputs.deployment }}
+
+  build:
+    runs-on: [sdv-local]
+    needs: [checkout, setup]
+    steps:
+      - name: Deployment Name
+        id: vars
+        working-directory: "${{ github.sha }}/carla"
+        run: echo "deployment=sfd-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Build app
+        working-directory: "${{ github.sha }}/carla"
+        run: |
+          ../dnsdv-sdk/dnsdv-sdk.sh build --deployment=${{ steps.vars.outputs.deployment }}
+
+  finish:
+    runs-on: [sdv-local]
+    needs: [checkout, setup, build]
+    if: always()
+    steps:
+      - name: Deployment Name
+        id: vars
+        working-directory: "${{ github.sha }}/carla"
+        run: echo "deployment=sfd-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v7
+
+      - name: Setup
+        working-directory: "${{ github.sha }}"
+        run: |
+            export PATH=`pwd`/.venv/bin:$PATH
+            cd ./carla
+            ../dnsdv-sdk/dnsdv-sdk.sh destroy --deployment=${{ steps.vars.outputs.deployment }}
+
+  clean:
+    runs-on: [sdv-local]
+    needs: [checkout, setup, build, finish]
+    steps:
+      - name: Clean checkouts
+        run: |
+          rm -rf ${{ github.sha }}

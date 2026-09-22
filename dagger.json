@@ -1,0 +1,11 @@
+{
+  "name": "libcarla",
+  "engineVersion": "v0.18.19",
+  "sdk": {
+    "source": "python"
+  },
+  "include": [
+    "vendor/**"
+  ],
+  "source": ".dagger"
+}
