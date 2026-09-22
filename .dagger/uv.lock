@@ -227,18 +227,21 @@ dev = [
 ]
 
 [[package]]
-name = "denso-devenv-lib"
-version = "0.0.12"
-source = { path = "../vendor/denso_devenv_lib-0.0.12-py3-none-any.whl" }
+name = "dnsdv-pipeline-framework"
+version = "0.1.0"
+source = { editable = "../dnsdv-pipeline-framework/dnsdv_pipeline_framework" }
 dependencies = [
     { name = "dagger-io" },
-]
-wheels = [
-    { filename = "denso_devenv_lib-0.0.12-py3-none-any.whl", hash = "sha256:0e66fcbcd19248aa65d7b1448676e1fcdaf92d3057f6693ce854f4b2031f9f81" },
 ]
 
 [package.metadata]
 requires-dist = [{ name = "dagger-io" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-asyncio", specifier = ">=1.3.0" },
+]
 
 [[package]]
 name = "exceptiongroup"
@@ -342,13 +345,13 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "dagger-io" },
-    { name = "denso-devenv-lib" },
+    { name = "dnsdv-pipeline-framework" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "dagger-io", editable = "sdk" },
-    { name = "denso-devenv-lib", path = "../vendor/denso_devenv_lib-0.0.12-py3-none-any.whl" },
+    { name = "dnsdv-pipeline-framework", editable = "../dnsdv-pipeline-framework/dnsdv_pipeline_framework" },
 ]
 
 [[package]]

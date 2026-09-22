@@ -5,7 +5,7 @@
     "source": "python"
   },
   "include": [
-    "vendor/**"
+    "dnsdv-pipeline-framework/dnsdv_pipeline_framework/**"
   ],
   "source": ".dagger"
 }

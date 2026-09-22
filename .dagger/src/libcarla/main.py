@@ -1,10 +1,10 @@
 import platform
 import typing
 import dagger
-import de_lib
+import dnsdv_pipeline_framework
 
 @dagger.object_type
-class Libcarla(de_lib.DensoBase):
+class Libcarla(dnsdv_pipeline_framework.DensoBase):
 
     source: typing.Annotated[
         dagger.Directory,
@@ -32,25 +32,25 @@ class Libcarla(de_lib.DensoBase):
         explicit --jfrog-token / --jfrog-user is passed.
         """
 
-        await de_lib.credentials.store_many(
+        await dnsdv_pipeline_framework.credentials.store_many(
             {"jfrog-token": jfrog_token, "jfrog-user": jfrog_user}
         )
-        keys = await de_lib.credentials.list_keys()
+        keys = await dnsdv_pipeline_framework.credentials.list_keys()
         return f"JFrog credentials stored. Verified keys: {keys}"
 
     @dagger.function
     async def clear_jfrog_credentials(self) -> str:
         """Remove stored JFrog credentials from the cache volume."""
 
-        await de_lib.credentials.delete("jfrog-token")
-        await de_lib.credentials.delete("jfrog-user")
+        await dnsdv_pipeline_framework.credentials.delete("jfrog-token")
+        await dnsdv_pipeline_framework.credentials.delete("jfrog-user")
         return "JFrog credentials cleared from cache volume."
 
     @dagger.function
     async def list_credentials(self) -> str:
         """List all stored credential keys."""
 
-        keys = await de_lib.credentials.list_keys()
+        keys = await dnsdv_pipeline_framework.credentials.list_keys()
         return "\n".join(keys) if keys else "No credentials stored."
 
     @dagger.function
@@ -65,7 +65,7 @@ class Libcarla(de_lib.DensoBase):
         if manifest.architecture.target != platform.uname().machine and not target_self:
             raise Exception(f"{manifest.name} artifacts for target {manifest.architecture.target} cannot be compiled on this system")
 
-        jfrog_token = await de_lib.credentials.resolve("jfrog-token", jfrog_token)
+        jfrog_token = await dnsdv_pipeline_framework.credentials.resolve("jfrog-token", jfrog_token)
 
         container = self.build_dev_image(manifest, self.source, jfrog_token, {})
         container = (container
@@ -134,7 +134,7 @@ class Libcarla(de_lib.DensoBase):
 
         artifacts = await self.artifacts(target_self)
 
-        jfrog_token = await de_lib.credentials.resolve("jfrog-token", jfrog_token)
+        jfrog_token = await dnsdv_pipeline_framework.credentials.resolve("jfrog-token", jfrog_token)
         if jfrog_token is None:
             raise RuntimeError(
                 "No JFrog token provided and none found in cache. "
