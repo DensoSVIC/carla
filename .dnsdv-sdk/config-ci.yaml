@@ -2,18 +2,18 @@ remote_path: "{{ ansible_env.HOME }}/carla"
 
 local_config:
   hosts:
-  - name: self
+  - name: thor
     architecture: amd64
     distro: ubuntu
-    hostname: 192.168.90.127
-    user: carla
+    hostname: 192.168.90.105
+    user: thor
 
 orchestrator: docker
 containers:
 - name: libcarla
   architecture: arm64
   remote_path: "{{ ansible_env.HOME }}/carla"
-  build_host: self
+  build_host: thor
   manual_build:
   - dagger -m deps/LinguaFranca call store-jfrog-credentials --jfrog-token=env://JFROG_TOKEN --jfrog-user=env://JFROG_USER
   - dagger call upload-artifacts

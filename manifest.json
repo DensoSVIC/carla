@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "architecture": {
         "host": "aarch64",
-        "target": "x86_64",
+        "target": "aarch64",
         "platform": "linux/arm64"
     },
 

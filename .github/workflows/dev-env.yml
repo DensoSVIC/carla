@@ -12,7 +12,7 @@ on: push
 
 jobs:
   checkout:
-    runs-on: [sdv-local]
+    runs-on: [carla]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,7 +28,7 @@ jobs:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
 
   setup:
-    runs-on: [sdv-local]
+    runs-on: [carla]
     needs: [checkout]
     steps:
       - name: Deployment Name
@@ -58,7 +58,7 @@ jobs:
             ../dnsdv-sdk/dnsdv-sdk.sh provision --deployment=${{ steps.vars.outputs.deployment }}
 
   build:
-    runs-on: [sdv-local]
+    runs-on: [carla]
     needs: [checkout, setup]
     steps:
       - name: Deployment Name
@@ -75,7 +75,7 @@ jobs:
           ../dnsdv-sdk/dnsdv-sdk.sh build --deployment=${{ steps.vars.outputs.deployment }}
 
   finish:
-    runs-on: [sdv-local]
+    runs-on: [carla]
     needs: [checkout, setup, build]
     if: always()
     steps:
@@ -95,7 +95,7 @@ jobs:
             ../dnsdv-sdk/dnsdv-sdk.sh destroy --deployment=${{ steps.vars.outputs.deployment }}
 
   clean:
-    runs-on: [sdv-local]
+    runs-on: [carla]
     needs: [checkout, setup, build, finish]
     steps:
       - name: Clean checkouts
