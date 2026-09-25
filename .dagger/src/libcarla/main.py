@@ -132,7 +132,7 @@ class Libcarla(dnsdv_pipeline_framework.DensoBase):
         if manifest.architecture.target != platform.uname().machine and not target_self:
             raise Exception(f"{manifest.name} artifacts for target {manifest.architecture.target} cannot be compiled on this system")
 
-        artifacts = await self.artifacts(target_self)
+        artifacts = await self.artifacts(jfrog_token, target_self)
 
         jfrog_token = await dnsdv_pipeline_framework.credentials.resolve("jfrog-token", jfrog_token)
         if jfrog_token is None:
