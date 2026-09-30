@@ -45,11 +45,11 @@ fi
 # -- INSTALL APT PACKAGES --
 echo "Installing Ubuntu Packages..."
 sudo apt-get update
+# do not want this if running in docker libvulkan1 \
 sudo apt-get -y install \
     build-essential \
     make \
     ninja-build \
-    libvulkan1 \
     libpng-dev \
     "$LIBTIFF_PKG" \
     libjpeg-dev \
