@@ -256,7 +256,7 @@ void AHSSLidar::SimulateLidar(const float DeltaTime)
             -HorizontalFov / 2.0f + static_cast<float>(idxPtsOneLaser) * HorizontalResolution;
         const bool PreprocessResult = RayPreprocessCondition[idxChannel][idxPtsOneLaser];
 
-        if (PreprocessResult && ShootLaser(VertAngle, HorizAngle, HitResult, TraceParams)) {
+        if (PreprocessResult && ShootLaser(VertAngle, HorizAngle, HitResult, TraceParams, 0.0)) {
           WritePointAsync(idxChannel, HitResult);
         }
       };

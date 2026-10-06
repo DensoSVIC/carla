@@ -1,0 +1,3 @@
+[submodule "dnsdv-pipeline-framework"]
+	path = dnsdv-pipeline-framework
+	url = git@github.com:DensoSVIC/dnsdv-pipeline-framework.git

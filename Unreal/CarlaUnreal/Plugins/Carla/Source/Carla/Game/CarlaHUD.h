@@ -39,6 +39,15 @@ struct HUDString
   double TimeToDie;
 };
 
+struct HUDLine
+{
+  FVector Begin;
+  FVector End;
+  float Thickness;
+  FColor Color;
+  double TimeToDie;
+};
+
 /// Class to draw on HUD
 UCLASS()
 class CARLA_API ACarlaHUD : public AHUD
@@ -66,6 +75,7 @@ public:
   }
 
   void AddHUDString(const FString Str, const FVector Location, const FColor Color, double LifeTime);
+  void AddHUDLine(const FVector Begin, const FVector End, const float Thickness, const FColor Color, double LifeTime);
 
   void ClearDebugStrings()
   {
@@ -74,4 +84,5 @@ public:
 
 private:
   TArray<HUDString> StringList;
+  TArray<HUDLine> LineList;
 };
