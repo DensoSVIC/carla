@@ -167,6 +167,17 @@ public:
   UFUNCTION(BlueprintCallable)
   void SetSeed(int32 InSeed);
 
+  float GetRainRate(){
+    if (Episode != nullptr)
+    {
+      // This probably needs a bigger change to work properly + for right now we don't care about rain changing lidar
+      if (Episode->GetWeather() != nullptr) {
+        return Episode->GetWeather()->GetCurrentWeather().Precipitation;
+      }
+    }
+    return 0.0f;
+  }
+
   const UCarlaEpisode &GetEpisode() const
   {
     check(Episode != nullptr);

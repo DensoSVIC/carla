@@ -107,8 +107,15 @@ namespace data {
       return reinterpret_cast<const float &>(_header[Index::HorizontalAngle]);
     }
 
+    uint32_t GetidxPtsOneLaser() const {
+      return reinterpret_cast<const uint32_t &>(M1_header[0]);
+    }
     void SetHorizontalAngle(float angle) {
       std::memcpy(&_header[Index::HorizontalAngle], &angle, sizeof(uint32_t));
+    }
+
+    void SetidxPtsOneLaser(int idxPtsOneLaser) {
+      std::memcpy(&M1_header[0], &idxPtsOneLaser, sizeof(uint32_t));
     }
 
     uint32_t GetChannelCount() const {
@@ -137,6 +144,7 @@ namespace data {
 
   protected:
     std::vector<uint32_t> _header;
+    std::vector<uint32_t> M1_header={0,0};
     uint32_t _max_channel_points;
 
   private:

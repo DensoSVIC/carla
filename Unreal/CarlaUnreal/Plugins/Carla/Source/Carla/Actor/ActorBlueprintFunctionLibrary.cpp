@@ -1482,6 +1482,22 @@ void UActorBlueprintFunctionLibrary::MakeLidarDefinition(
   FillIdAndTags(Definition, TEXT("sensor"), TEXT("lidar"), Id);
   AddRecommendedValuesForSensorRoleNames(Definition);
   AddVariationsForSensor(Definition);
+  //lidar_type //加入LidarTpye变量
+  FActorVariation LidarType;
+  LidarType.Id = TEXT("lidar_type");
+  LidarType.Type = EActorAttributeType::String;
+  LidarType.RecommendedValues = { TEXT("default") };
+  //lidar_name //加入name变量,用string代替原来的int值
+  FActorVariation Name;
+  Name.Id=TEXT("name");
+  Name.Type=EActorAttributeType::String;
+  Name.RecommendedValues={TEXT("default")};
+  //enable_ghost
+  FActorVariation EnableGhost;
+  EnableGhost.Id = TEXT("enable_ghost");
+  EnableGhost.Type = EActorAttributeType::Bool;
+  EnableGhost.RecommendedValues = { TEXT("false") };
+  EnableGhost.bRestrictToRecommended = false;
   // Number of channels.
   FActorVariation Channels;
   Channels.Id = TEXT("channels");
@@ -1549,21 +1565,24 @@ void UActorBlueprintFunctionLibrary::MakeLidarDefinition(
   StdDevLidar.Type = EActorAttributeType::Float;
   StdDevLidar.RecommendedValues = {TEXT("0.0")};
 
-  if (Id == "ray_cast")
-  {
-    Definition.Variations.Append({Channels,
-                                  Range,
-                                  PointsPerSecond,
-                                  Frequency,
-                                  UpperFOV,
-                                  LowerFOV,
-                                  AtmospAttenRate,
-                                  NoiseSeed,
-                                  DropOffGenRate,
-                                  DropOffIntensityLimit,
-                                  DropOffAtZeroIntensity,
-                                  StdDevLidar,
-                                  HorizontalFOV});
+  if (Id == "ray_cast") {
+    Definition.Variations.Append({
+      LidarType,//加入lidartype变量
+      Name,  //加入name变量
+      EnableGhost,
+      Channels,
+      Range,
+      PointsPerSecond,
+      Frequency,
+      UpperFOV,
+      LowerFOV,
+      AtmospAttenRate,
+      NoiseSeed,
+      DropOffGenRate,
+      DropOffIntensityLimit,
+      DropOffAtZeroIntensity,
+      StdDevLidar,
+      HorizontalFOV});
   }
   else if (Id == "hss_lidar")
   {
@@ -1580,6 +1599,9 @@ void UActorBlueprintFunctionLibrary::MakeLidarDefinition(
     HorizontalFOV.RecommendedValues = { TEXT("120.0") };
 
     Definition.Variations.Append({
+      LidarType,//加入lidartype变量
+      Name,  //加入name变量
+      EnableGhost,
         Channels,
         Range,
         Frequency,
@@ -2525,6 +2547,12 @@ void UActorBlueprintFunctionLibrary::SetLidar(
     FLidarDescription &Lidar)
 {
   constexpr float TO_CENTIMETERS = 1e2;
+  Lidar.LidarType=
+      RetrieveActorAttributeToString("lidar_type", Description.Variations, Lidar.LidarType);
+  Lidar.NAME=
+      RetrieveActorAttributeToString("name", Description.Variations, Lidar.NAME); //改为toString
+  Lidar.EnableGhost=
+      RetrieveActorAttributeToBool("enable_ghost", Description.Variations, Lidar.EnableGhost);
   Lidar.Channels =
       RetrieveActorAttributeToInt("channels", Description.Variations, Lidar.Channels);
   Lidar.Range =

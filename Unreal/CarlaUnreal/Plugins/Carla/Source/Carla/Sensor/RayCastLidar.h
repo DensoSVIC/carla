@@ -19,6 +19,17 @@
 
 #include "RayCastLidar.generated.h"
 
+struct ParticleNoise {
+    float Angle;
+    float Radius;
+    float Distance;
+    float Diameter;
+    ParticleNoise(){}
+    ParticleNoise(float a_,float r_, float dis, float dia):Angle(a_),Radius(r_),Distance(dis),Diameter(dia){}
+    float DisSquare() const { return (Distance * Distance + Radius * Radius); }
+    float Dis() const { return sqrt(Distance * Distance + Radius * Radius); }
+    bool operator <(const ParticleNoise &p) const {return Diameter < p.Diameter;}
+};
 /// A ray-cast based Lidar sensor.
 UCLASS()
 class CARLA_API ARayCastLidar : public ARayCastSemanticLidar
@@ -49,6 +60,11 @@ private:
 
   void ComputeAndSaveDetections(const FTransform& SensorTransform) override;
 
+  void SampleBeamParticles(std::vector<ParticleNoise> &beam_particles);
+  FDetection ComputeDetectionAdvance(const FHitResult &HitInfo, const FTransform &SensorTransf, int idxChannel, int idxHorizon);
+  void ComputeAndSaveDetectionsAdvance(const FTransform &SensorTransform);
+  float ReadAlphaFromFile(float perception);
+  void UpsampleDroplet(const FTransform &SensorTransf);
   FLidarData LidarData;
 
   /// Enable/Disable general dropoff of lidar points
@@ -61,7 +77,9 @@ private:
   /// beta = (1 - dropoff_zero_intensity)
   float DropOffAlpha;
   float DropOffBeta;
-
+  std::vector<float> w_R = std::vector<float>(2501, 0.0);
+  std::vector<float> w_Intensity = std::vector<float>(2501, 0.0);
+  // std::vector<std::vector> _ser_points
   // Way to access PointCloud data from the server.
   TArray<float> PointCloudLidarData;
 
