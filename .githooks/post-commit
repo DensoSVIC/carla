@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# post-commit hook
+#
+# 1. Set root manifest.json "version" to "<branch>.<short-sha>".
+# 2. For every component under deps/ that changed in HEAD, also:
+#      - set deps/<Component>/manifest.json "version" to the same value, and
+#      - set the matching entry in the root manifest's "devDependencies" and
+#        "dependencies" arrays (matched by exact "name") to the same value.
+# 3. Dependency cascade (hardcoded): a change to TensorRT is also treated as a
+#    change to BEVFusion, which additionally updates BEVFusion's own version and
+#    its TensorRT reference in deps/BEVFusion/manifest.json.
+# 4. Commit everything as a follow-up commit on top of the one just made.
+#
+# Enable once per clone:   git config core.hooksPath .githooks
+# Then just:               git commit ...   &&   git push
+# The single push carries both commits; the auto-commit is the tip, so CI runs
+# against it (see .github/workflows/ci.yml).
+#
+# NOTE: `git commit -- <paths>` saves and restores the rest of the index, so any
+# other files you had staged are left staged, untouched.
+#
+# Requires: jq.
+
+set -eu
+
+# Recursion guard: the `git commit` below re-triggers this hook.
+[ -n "${GIT_MANIFEST_HOOK_RUNNING:-}" ] && exit 0
+
+# Skip in CI / automation, and honour a kill switch.
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then exit 0; fi
+[ "${SFD_SKIP_MANIFEST_HOOK:-0}" = "1" ] && exit 0
+
+cd "$(git rev-parse --show-toplevel)"
+[ -f manifest.json ] || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+
+export GIT_MANIFEST_HOOK_RUNNING=1
+
+branch="$(git symbolic-ref --short -q HEAD 2>/dev/null || echo detached)"
+version="$branch.$(git rev-parse --short=7 HEAD)"
+
+# jq's default indent is 2 spaces, which would reformat these 4-space manifests
+# into a huge no-op diff. Detect the file's own indent (0-9) and reuse it.
+jq_indent() {
+    n="$(awk 'match($0, /^ +/) { print RLENGTH; exit }' "$1" 2>/dev/null || true)"
+    case "$n" in
+        [1-9]) printf '%s' "$n" ;;
+        *)     printf '2' ;;
+    esac
+}
+
+# --- Changed components ------------------------------------------------------
+# A component is "changed" if HEAD's diff touches anything under deps/<name>/.
+# `git diff-tree` (plumbing) does not trigger hooks. Only a diff against a real
+# parent counts: on the very first commit in a fresh clone there is no HEAD^,
+# so no component is considered changed and only the root version is bumped.
+changed=""
+if git rev-parse -q --verify HEAD^ >/dev/null 2>&1; then
+    changed="$(git diff-tree --no-commit-id --name-only -r HEAD)"
+fi
+
+is_changed() {
+    printf '%s\n' "$changed" | grep -q "^deps/$1/"
+}
+
+# Root version is always bumped (even with no deps changes).
+if [ -z "${paths:-}" ]; then
+    jq --indent "$(jq_indent manifest.json)" --arg v "$version" '.version = $v' manifest.json > manifest.json.tmp
+    mv manifest.json.tmp manifest.json
+    paths="manifest.json"
+fi
+
+# shellcheck disable=SC2086
+git commit -q --no-verify --only $paths -m "chore: bump version to $version" -m "[auto-manifest]"
