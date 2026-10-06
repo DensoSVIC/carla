@@ -1,24 +1,21 @@
 {
     "name": "libcarla",
-    "version": "0.0.1",
+    "version": "artifact-versioning.31089a1",
     "architecture": {
         "host": "aarch64",
         "target": "aarch64",
         "platform": "linux/arm64"
     },
-
     "runtimeImage": {
         "name": "ubuntu",
         "version": "24.04",
         "type": "docker"
     },
-
     "devImage": {
         "name": "ubuntu",
         "version": "24.04",
         "type": "docker"
     },
-
     "build": {
         "workdir": "/app",
         "env": [
@@ -27,7 +24,6 @@
             }
         ]
     },
-
     "packages": {
         "apt": [
             "git",
@@ -41,12 +37,10 @@
             "fontconfig"
         ]
     },
-
     "registry": {
         "artifacts": "https://globaldenso.jfrog.io/artifactory/softrnd-generic-dev-local-swpf-env-us/",
         "docker": "https://globaldenso.jfrog.io/softrnd-docker-dev-local-swpf-env-us/"
     },
-
     "outputs": {
         "devImage": false,
         "runtimeImage": false
