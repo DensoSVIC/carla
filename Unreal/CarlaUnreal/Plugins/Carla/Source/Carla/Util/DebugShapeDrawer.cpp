@@ -71,7 +71,7 @@ struct FShapeVisitor
     {
       Location = LargeMap->GlobalToLocalLocation(Location);
     }
-    Hud->AddHUDLine(Location, Location, Point.size, Color.Quantize(), LifeTime);
+    Hud->AddHUDLine(Location, Location, Point.size, Color.QuantizeRound(), LifeTime);
   }
 
   void operator()(const Shape::Line &Line) const
@@ -104,7 +104,7 @@ struct FShapeVisitor
       Begin = LargeMap->GlobalToLocalLocation(Begin);
       End = LargeMap->GlobalToLocalLocation(End);
     }
-    Hud->AddHUDLine(Begin, End, Line.thickness, Color.Quantize(), LifeTime);
+    Hud->AddHUDLine(Begin, End, Line.thickness, Color.QuantizeRound(), LifeTime);
   }
 
   void operator()(const Shape::Arrow &Arrow) const
@@ -190,19 +190,19 @@ struct FShapeVisitor
     const auto ArrowTipDist = Dist - ArrowSize;
     const auto Thickness = Arrow.line.thickness;
 
-    Hud->AddHUDLine(Begin, End, Thickness, Color.Quantize(), LifeTime);
+    Hud->AddHUDLine(Begin, End, Thickness, Color.QuantizeRound(), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, +ArrowSize, +ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.QuantizeRound(), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, +ArrowSize, -ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.QuantizeRound(), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, -ArrowSize, +ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.QuantizeRound(), LifeTime);
     Hud->AddHUDLine(
         Transform.TransformPosition(FVector(ArrowTipDist, -ArrowSize, -ArrowSize)),
-        End, Thickness, Color.Quantize(), LifeTime);
+        End, Thickness, Color.QuantizeRound(), LifeTime);
   }
 
   void operator()(const Shape::Box &Box) const
@@ -295,19 +295,19 @@ struct FShapeVisitor
         Q.Y=B[j].Y; P.Z=B[0].Z; Q.Z=B[1].Z;
         Hud->AddHUDLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
-            Thickness, Color.Quantize(), LifeTime);
+            Thickness, Color.QuantizeRound(), LifeTime);
 
         P.Y=B[i].Y; Q.Y=B[i].Y; P.Z=B[j].Z;
         Q.Z=B[j].Z; P.X=B[0].X; Q.X=B[1].X;
         Hud->AddHUDLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
-            Thickness, Color.Quantize(), LifeTime);
+            Thickness, Color.QuantizeRound(), LifeTime);
 
         P.Z=B[i].Z; Q.Z=B[i].Z; P.X=B[j].X;
         Q.X=B[j].X; P.Y=B[0].Y; Q.Y=B[1].Y;
         Hud->AddHUDLine(
             Transform.TransformPosition(P), Transform.TransformPosition(Q),
-            Thickness, Color.Quantize(), LifeTime);
+            Thickness, Color.QuantizeRound(), LifeTime);
       }
     }
   }
